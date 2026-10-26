@@ -1,147 +1,243 @@
+<div align="center">
+
 # StackFlow
 
-A small, focused workspace for projects, milestones, assigned tasks, and **human verification**. Built with React/TypeScript, Vite, Express, and MongoDB.
+### Plan with clarity. Deliver with ownership. Verify real progress.
 
-Plan an outcome, assign a Tech Lead, deliver tasks, request changes when needed, and verify the result. Progress counts verified tasks, not unchecked completion.
+A focused, full-stack workspace that brings projects, milestones, task ownership, and human verification together—so teams can see what is actually done, not just what is marked complete.
 
-## Run on Windows
+<br />
 
-Use PowerShell. Install **Node.js 22.12+ (24 LTS recommended)** and **MongoDB Community Server**. MongoDB 8.3 and Node 24 were used for the recorded checks. Redis is **not required**.
+[ **↗ OPEN STACKFLOW LIVE** ](https://stackflow-frontend-phi.vercel.app)
 
-### First setup
+<br />
+
+<img alt="React" src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB">
+<img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white">
+<img alt="Vite" src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white">
+<img alt="Node.js" src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white">
+<img alt="Express" src="https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white">
+<img alt="MongoDB" src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white">
+
+<br /><br />
+
+**React · TypeScript · Express · MongoDB · Vercel · Render**
+
+</div>
+
+---
+
+## Built for work that needs to be verified
+
+Teams need more than a list of tasks. They need clear ownership, meaningful milestones, and a reliable way to decide whether work is actually complete.
+
+StackFlow provides a structured workflow:
+
+1. Create a workspace and establish team roles.
+2. Organize work into projects and milestones.
+3. Assign tasks to teammates with priorities and due dates.
+4. Submit completed work for review.
+5. Verify the result or request changes with a reason.
+6. Track progress based on verified tasks and preserve an activity history.
+
+## What you can do
+
+- **Workspace and team management** — create a workspace, invite members, and manage roles.
+- **Role-based access** — Admin, Tech Lead, and Teammate permissions are enforced by the backend.
+- **Project and milestone planning** — organize outcomes, owners, and deadlines.
+- **Task assignment** — track assignees, priorities, due dates, and task states.
+- **Human verification** — reviewers verify completed work or request changes with a reason.
+- **Progress based on verified work** — submitted work does not count as verified progress.
+- **Task history** — record important task transitions and review actions.
+- **Search and navigation** — search projects, milestones, tasks, and people; use `Ctrl/Cmd + K` for quick search.
+- **Filtering and sorting** — find work by status and priority, with pagination for task tables.
+- **Profile and password management** — update your display name or change your password.
+- **Responsive interface** — layouts support desktop, tablet, and mobile screens.
+- **Session security** — short-lived access tokens, HttpOnly refresh cookies, session revocation, and hashed refresh-token storage.
+- **Careful deletion rules** — empty projects and milestones can be deleted by an Admin; started work and review history are protected.
+
+## How the workflow works
+
+### Roles
+
+| Capability | Admin | Tech Lead | Teammate |
+| --- | --- | --- | --- |
+| View workspace projects, tasks, members, and search | Yes | Yes | Yes |
+| Create or edit projects | Yes | No | No |
+| Create milestones | Yes | Within assigned role rules | No |
+| Edit or reassign milestones | Yes | No | No |
+| Create, edit, and assign tasks | Yes | Within own milestones | No |
+| Start and submit assigned work | No | No | Own tasks |
+| Verify work or request changes | Yes | Own milestones | No |
+| Invite/remove members and grant Tech Lead role | Yes | No | No |
+| Delete eligible empty projects/milestones | Yes | No | No |
+
+The backend checks the current membership, role, and relevant workspace relationships. Hiding a button in the frontend is not the security boundary.
+
+### Task lifecycle
+
+```text
+pending → in_progress → completed → verified
+   │                         │
+   └──────→ completed        └→ changes_requested
+                                      │
+                                      └→ in_progress → completed
+```
+
+- `completed` is displayed as **In review**.
+- Only `verified` tasks count toward verified progress.
+- Reviewers must provide a reason when requesting changes or reopening verified work.
+- Task state changes and their history are written together, with version checks to reject stale or duplicate actions.
+
+**Progress calculation:** verified tasks ÷ total tasks, rounded to a whole percentage. A project’s progress is weighted across its tasks. Empty projects report 0%.
+
+## Under the hood
+
+| Layer | Technologies |
+| --- | --- |
+| Frontend | React, TypeScript, Vite |
+| UI and styling | Tailwind CSS, Radix UI, Lucide |
+| Backend | Node.js, Express |
+| Database and models | MongoDB, Mongoose |
+| Authentication | Signed access tokens, HttpOnly refresh cookies, hashed refresh-token storage |
+| Testing | Unit tests, HTTP/MongoDB integration tests, Playwright browser tests |
+| Frontend hosting | Vercel |
+| Backend hosting | Render |
+| Database hosting | MongoDB Atlas |
+
+## How it fits together
+
+```text
+Browser
+   │
+   ▼
+Vercel — React/Vite production frontend
+   │  Same-origin /api requests
+   ▼
+Render — Express REST API
+   │
+   ▼
+MongoDB Atlas — persistent application data
+```
+
+The frontend sends API requests to `/api`. Vercel rewrites those requests to the Render backend. The backend validates input, enforces permissions, performs application logic, and reads or writes data through Mongoose.
+
+The browser does not connect directly to MongoDB. Database credentials and token-signing secrets stay in the backend environment.
+
+## Run it locally
+
+### Prerequisites
+
+- Node.js 22.12+ (Node.js 24 LTS recommended)
+- npm
+- MongoDB Community Server running locally, or a MongoDB Atlas URI for development
+
+### 1. Clone the repository
 
 ```powershell
-cd S:\PROJECTS\StackFlow\stackflow
+git clone https://github.com/buildsbyShlok/StackFlow.git
+cd StackFlow
+```
+
+### 2. Install dependencies
+
+```powershell
 npm ci
 npm --prefix stackflow-frontend ci
+```
+
+### 3. Create local environment files
+
+```powershell
 npm run setup
 ```
 
-`setup` creates missing environment files with local defaults and two independently generated JWT secrets. It **never overwrites an existing .env** and does not print secrets. If an existing configuration points somewhere else, review it before running.
+The setup command creates missing environment files with local defaults and independently generated JWT secrets. It does not overwrite existing `.env` files or print secret values. Review any existing environment configuration before starting.
 
-Check MongoDB:
+### 4. Start MongoDB
+
+If using MongoDB Community Server as a Windows service, check its status:
 
 ```powershell
 Get-Service MongoDB
 ```
 
-If installed as a Windows service and stopped, run `Start-Service MongoDB` from an administrator PowerShell. Otherwise start `mongod` using your MongoDB installation and an existing data directory, or configure an Atlas connection in `stackflow-backend/.env`.
-
-### Every subsequent run
+If it is installed but stopped, start it from an Administrator PowerShell:
 
 ```powershell
-cd S:\PROJECTS\StackFlow\stackflow
+Start-Service MongoDB
+```
+
+Alternatively, use an existing MongoDB data directory with `mongod`, or configure an Atlas connection in `stackflow-backend/.env`.
+
+### 5. Start the application
+
+From the repository root:
+
+```powershell
 npm run dev
 ```
 
-This starts the API and Vite together. Keep the terminal open; Ctrl+C stops development.
+This starts the backend and Vite frontend together. Keep the terminal open while developing; `Ctrl+C` stops the processes.
 
-- Application: [http://localhost:5173](http://localhost:5173)
-- API health: [http://localhost:5000/api/health](http://localhost:5000/api/health)
-- Registration: [http://localhost:5173/register](http://localhost:5173/register)
+- **Frontend:** http://localhost:5173
+- **API health:** http://localhost:5000/api/health
+- **Registration:** http://localhost:5173/register
 
-Use **localhost consistently**, rather than mixing localhost and 127.0.0.1 in browser URLs, so cookies and the configured origin match.
+Use `localhost` consistently rather than mixing it with `127.0.0.1`, so browser origin and cookie settings match.
 
-To run in separate terminals, from the root:
+To run services separately, use two terminals from the repository root:
 
 ```powershell
 npm run dev:backend
-# In a second terminal:
+```
+
+```powershell
 npm run dev:frontend
 ```
 
-`npm start` runs only the API without watching files. `npm run build` produces the frontend in `stackflow-frontend/dist`; it does not deploy or serve the frontend.
+`npm start` starts the API without development watching. `npm run build` builds the frontend into `stackflow-frontend/dist`; it does not deploy the application.
 
-## First workspace and workflow
+## Environment configuration
 
-1. Register using **Create workspace**. This creates an Admin and uses the workspace name you enter.
-2. Open **Team**, copy the invite code, and share it with your team.
-3. Other users register with **Join team**. They join as Teammates.
-4. The Admin changes an appropriate member's role to **Tech Lead** on Team. The member refreshes the page to see their new role.
-5. The Admin creates a project. An Admin or Tech Lead creates a milestone with a deadline; Tech Leads can assign new milestones only to themselves.
-6. The assigned Tech Lead or Admin creates tasks, selects teammates, and sets priority and optional due dates.
-7. A teammate starts their assigned task and submits it for review.
-8. The milestone's Tech Lead or an Admin opens **Verification**, inspects the task, and verifies it or requests changes with a reason.
-9. Changes requested work returns to the teammate. It can be resumed and resubmitted.
-10. Accepted tasks increase milestone/project progress. The task's history records each action.
+The backend loads `stackflow-backend/.env` in development. In production, it reads environment variables supplied by the hosting service. Frontend development configuration lives in `stackflow-frontend/.env`.
 
-Use separate browser profiles or sign out between accounts when testing roles. There are no seeded accounts or demo responses in the application.
-
-## Features and permissions
-
-| Capability | Admin | Tech Lead | Teammate |
-| --- | --- | --- | --- |
-| Browse workspace projects, tasks, members, search | Yes | Yes | Yes |
-| Create/edit project | Yes | No | No |
-| Create milestone | Yes | Assigned to self | No |
-| Edit/reassign milestone | Yes | No | No |
-| Delete empty project/milestone | Yes | No | No |
-| Create/edit/assign task | Yes | Own milestones | No |
-| Start/submit/withdraw task | No | No | Own tasks |
-| Verify/request changes/reopen review | Yes | Own milestones | No |
-| Invite/remove members, grant Tech Lead | Yes | No | No |
-
-Task metadata can be edited only before submission or after changes are requested. Only unstarted tasks without submission/review history can be deleted.
-
-### Safe deletion
-
-Admins can choose **Delete project** on project details or **Delete milestone** beside a milestone's actions. The dialog shows the name and requires typing it exactly. A project must have no milestones; a milestone must have no tasks. Delete eligible unstarted tasks individually, then their empty milestone, then the empty project. Started work and verification history block deletion and are retained. There is no destructive cascade or archive feature.
-
-The API checks current organization, role, name and record version. Stale/repeated requests fail safely. A durable MongoDB guard serializes parent deletion and child creation across API processes. Replica sets/sharded clusters use transactions; standalone MongoDB supports this empty-record policy without transactions. Referential checks query actual children rather than trusting cached arrays. Successful milestone deletion removes its project reference, and progress continues to derive from persisted tasks.
-
-### Profile and security
-
-Open **Your profile** from the sidebar avatar/name (also available in mobile navigation). Edit your name, or change your password using the current password. Email, workspace and role are read-only. New passwords require at least 10 characters and at most 72 bytes. A password change invalidates all access/refresh sessions and returns you to sign in with the new password. Name edits do not rewrite historical activity. Profile remains available to accounts without a workspace.
-
-Admins cannot leave or remove themselves. A member cannot leave, be removed, or change role while they own unfinished tasks or lead milestones. Reassign tasks or milestones first. Removing a member revokes their current session immediately.
-
-Tasks have title, description, assignee, priority, optional due date, state, creation/submission/review times, reviewer, and history. Task tables support search, status/priority filters, sorting and pagination. Tasks open in accessible dialogs, and direct task links still work. Ctrl/Cmd+K searches projects, milestones, tasks, and people.
-
-### State and progress rules
-
-Existing persisted states remain valid:
-
-```text
-pending -> in_progress -> completed -> verified
-pending ----------------> completed
-completed -> changes_requested -> in_progress -> completed
-completed -> in_progress          (assignee withdraws)
-verified -> completed             (reviewer reopens with a reason)
-```
-
-`completed` is displayed as **In review**. It is not included in verified progress. Requesting changes requires a reason. Each accepted transition and its history are written atomically using a conditional status/version update; stale or duplicate transitions return HTTP 409.
-
-Progress = verified task count / actual task count, rounded to an integer; zero tasks means 0%. Project progress is weighted across all its tasks. Cached progress fields and historical reference arrays are not trusted for reads. Due dates retain the selected calendar date, and overdue indicators use the end of that day in the viewer's local timezone.
-
-## Configuration
-
-In development, the API loads `stackflow-backend/.env`, regardless of the launch directory. With `NODE_ENV=production` set by the host, it reads only service environment variables. Frontend development configuration lives in `stackflow-frontend/.env`. Examples contain placeholders only.
-
-| Variable | Local value / meaning |
+| Variable | Purpose |
 | --- | --- |
-| DB_URI | `mongodb://127.0.0.1:27017/stackflow` |
-| PORT | `5000` |
-| FRONTEND_URL | `http://localhost:5173`; comma-separated exact origins if needed |
-| ACCESS_SECRET | Independent random secret, generated by setup |
-| REFRESH_SECRET | A different random secret, generated by setup |
-| NODE_ENV | `development` locally; `production` enables secure cookies |
-| TRUST_PROXY | `0` locally; Render template uses `1`; verify proxy topology before changing |
-| VITE_API_BASE_URL | Development only: `http://localhost:5000`; client appends `/api` |
-| BACKEND_URL | Vercel routing only: real HTTPS Render origin without `/api` or trailing slash |
+| `DB_URI` | MongoDB connection URI |
+| `PORT` | API port; defaults to `5000` locally |
+| `FRONTEND_URL` | Exact allowed frontend origin(s), comma-separated if needed |
+| `ACCESS_SECRET` | Independent secret for signing access tokens |
+| `REFRESH_SECRET` | Different independent secret for refresh tokens |
+| `NODE_ENV` | Set to `production` by the hosting environment |
+| `TRUST_PROXY` | Proxy trust setting; configure for the actual hosting topology |
+| `VITE_API_BASE_URL` | Development API origin; the client appends `/api` |
+| `BACKEND_URL` | Vercel routing configuration, if using the environment-based route configuration |
 
-Production requires HTTPS, two distinct random secrets of at least 32 characters, exact `FRONTEND_URL` origins, and an Atlas `mongodb+srv` URI with an explicit application database and verified TLS. Production frontend builds always call same-origin `/api`; Vercel forwards these requests to Render so SameSite=Lax refresh cookies work on the frontend domain. Local legacy secrets shorter than 32 characters are accepted only if at least 24 characters; prefer generated secrets. The API rejects example placeholders. Restart Vite after changing frontend development environment variables.
+Production configuration requires HTTPS, distinct random access/refresh secrets of at least 32 characters, an exact `FRONTEND_URL` origin, and a verified TLS-enabled MongoDB Atlas `mongodb+srv` URI with an explicit application database.
 
-## Deploy to Render, Atlas, and Vercel
+**Never commit `.env` files, credentials, database URIs, token secrets, or real user data.** Do not place private backend secrets in frontend variables prefixed with `VITE_`; those values may be included in the browser bundle.
 
-See [the deployment guide](docs/DEPLOYMENT.md) for Git preparation, exact service roots and commands, environment settings, and the verification checklist. `render.yaml` configures the API; `stackflow-frontend/vercel.json` configures the API proxy and SPA routes. These files prepare deployment; they do not create services or deploy by themselves.
+## Deployment
 
-Access tokens last 15 minutes and stay in browser memory. An HttpOnly refresh cookie restores sessions and lasts seven days. Refresh tokens are hashed in MongoDB; logout clears both current and legacy cookie paths and revokes the session. Existing accounts and valid legacy task data need no destructive migration. Case-insensitive email lookup also supports older mixed-case account emails.
+StackFlow is deployed as three services:
 
-**Redis was removed from the execution path.** The verification queue is a MongoDB query for completed tasks. No worker approves tasks automatically. The old `/api/queue/failed` endpoint returns 410 to make the retirement explicit.
+1. **Vercel** builds and serves the React frontend.
+2. **Render** runs the Express API.
+3. **MongoDB Atlas** hosts persistent database records.
 
-## Checks
+Deployment configuration is included in the repository:
 
-From the repository root:
+- `render.yaml` — Render service configuration.
+- `stackflow-frontend/vercel.json` — frontend build/routing configuration.
+
+These files describe configuration; they do not create cloud services or deploy by themselves. Configure service settings and environment variables in the relevant dashboards. See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for the full deployment checklist.
+
+After deployment, verify the frontend, `/api/health`, registration, login, session refresh/logout, and database persistence. A successful health response confirms that the health route responds; it does not by itself prove database connectivity or authentication correctness.
+
+## Testing and quality checks
+
+Run commands from the repository root.
 
 ```powershell
 npm run typecheck
@@ -150,76 +246,90 @@ npm run check:backend
 npm test
 npm run test:integration
 npm run build
+```
+
+Run dependency audits when the npm registry is available:
+
+```powershell
 npm audit
 npm --prefix stackflow-frontend audit
 ```
 
-Browser workflow test, after installing Chromium once:
+For browser tests, install Chromium once:
 
 ```powershell
 npx playwright install chromium
 npm run test:browser
 ```
 
-- `npm test`: transition, permission, deadline, progress, production configuration, CORS and cookie tests; no database required.
-- `test:integration`: real HTTP/MongoDB tests for authentication, refresh/logout, tenant isolation, assignment, rejection/verification, concurrent reviews, stale updates, progress, search, and membership.
-- `test:browser`: real Chromium workflow across all three roles, keyboard search, focus containment, session recovery, desktop/tablet/mobile layouts, error recovery and screenshots.
-- `npm run test:transactions`: runs the integration suite against a disposable local replica set on a free port. Requires `mongod`; defaults to `C:/Program Files/MongoDB/Server/8.3/bin/mongod.exe`. Set `$env:MONGOD_BINARY` for another installation. It does not reconfigure the application service; temporary database/log files remain under ignored `.artifacts/replica-*` for diagnostics.
-- Integration/browser tests connect to local MongoDB by default, create uniquely named `stackflow_test_*` / `stackflow_browser_test_*` databases, and drop only their own database during cleanup. They do not load the application's real .env. Override the test MongoDB server with `$env:TEST_MONGO_URI` if needed; the account must be able to create/drop these test databases.
-- Browser checks use frontend port 5175 and an ephemeral API port. Port 5175 must be available. Screenshots are written to ignored `.artifacts/browser/`.
-- Both dependency audits reported zero vulnerabilities on 2026-10-24. On 2026-10-26 both audit commands were attempted again, but the npm registry reset the connections (`ECONNRESET`), so current vulnerability status could not be refreshed. No dependencies were added or changed in this quality pass. A targeted `postcss-selector-parser` override supplies the existing security fix to Tailwind 3 and postcss-nested without a Tailwind 4 migration.
+For integration tests against a disposable local MongoDB replica set:
 
-Recorded results on 2026-10-24: root/frontend dependency installation, TypeScript, lint, backend syntax, 10 unit checks, all integration scenarios, browser workflow and production build passed. See the context file for the current verification detail.
-
-Quality pass on 2026-10-26: TypeScript, lint, backend syntax, 10 unit tests, 22 integration tests on standalone MongoDB and a disposable replica set, production build, and expanded Chromium lifecycle/profile tests passed. Node 22.17 and MongoDB 8.3 were used. Git metadata was absent in this provided directory; source comparison used an ignored local baseline rather than Git status/diff.
-
-## Structure
-
-```text
-package.json / package-lock.json    API dependencies + root commands
-scripts/                           setup, dev, syntax and browser checks
-stackflow-backend/
-  .env.example
-  src/
-    app.js / server.js             testable Express app + startup
-    controllers/                   auth, workspace, projects, milestones, tasks
-    routes/                        REST endpoints and permissions
-    models/                        existing MongoDB entities + additive fields
-    middlewares/                   current-session auth and role checks
-    lib/                           validation, sessions, workflow, workspace reads
-  test/                            unit and real MongoDB integration checks
-stackflow-frontend/
-  .env.example
-  src/
-    components/                    shared UI, forms, task table, search
-    context/                       auth and workspace state
-    layouts/                       application shell
-    pages/                         auth, overview, projects, tasks, review, team
-    services/                      typed API operations
-    utils/api.ts                   Axios, token refresh and user-safe errors
-    lib/                           formatting and class helpers
-  public/favicon.svg
-docs/STACKFLOW_CONTEXT.md           decisions, compatibility and test status
+```powershell
+npm run test:transactions
 ```
 
-`Progress_SAAS.rtf` is retained for provenance and does not participate in the build. This supplied directory has no Git metadata or submodule entry; initialize Git only after choosing the intended GitHub repository.
+Test notes:
 
-## Troubleshooting
+- `npm test` covers transitions, permissions, deadlines, progress, configuration, CORS, and cookie behavior without requiring the application database.
+- `npm run test:integration` exercises real HTTP/MongoDB flows including authentication, refresh/logout, workspace isolation, assignment, review, concurrency, progress, search, and membership.
+- `npm run test:browser` covers workflows across roles, responsive layouts, session recovery, keyboard search, and error recovery.
+- Integration and browser suites create their own test databases and remove only those test databases during cleanup. They do not load the application's real `.env`.
+- `npm run test:transactions` requires `mongod`; see the project documentation for the binary path and `MONGOD_BINARY` override.
 
-- **MongoDB unavailable:** start the MongoDB service and check DB_URI. The API exits clearly rather than serving a broken workspace.
-- **npm not recognized:** reopen PowerShell after installing Node. For the default Windows installation, use `$env:Path = "C:\Program Files\nodejs;" + $env:Path`.
-- **Invalid secrets / missing env:** run `npm run setup` for missing files. It preserves existing files; correct existing values manually using the examples. Never commit .env.
-- **Port in use:** stop the existing StackFlow terminal before starting another copy. Vite intentionally uses strict port 5173 to keep CORS predictable.
-- **EPERM on esbuild.exe during npm ci:** stop the project's running Vite process, then retry. Windows locks running executables.
-- **Origin not allowed:** match FRONTEND_URL to the browser origin and restart the backend.
-- **403 on a task:** the current database role and milestone assignment are authoritative. Tech Leads review only their own milestones.
-- **409 on a task:** another change won or the transition is invalid. Refresh the task and try again.
-- **Deletion blocked:** read the dialog's reason. Reviewed/started work is retained. Remove only eligible tasks and empty milestones; do not bypass the checks by deleting database rows manually.
-- **Persistent “another project change” error after a crash:** the durable guard deliberately does not expire while a writer might still be running. A database administrator must stop all StackFlow API processes, inspect the affected project's children/references and any interrupted operation, then clear only that project's `mutationToken` before restarting. Normal failures release the guard automatically. Do not clear a guard while any API writer is running.
-- **Browser executable missing:** run `npx playwright install chromium`.
-- **npm reports install-script approval warnings:** installed prebuilt bcrypt/esbuild binaries worked in the recorded Windows run. If a different machine requires package build scripts, review the named package using your npm version's approval mechanism.
-- Browserslist/Baseline may report old compatibility datasets. These are tooling notices, not failed checks.
+Previously recorded checks passed for type checking, lint, backend syntax, unit tests, integration tests, browser workflows, and production build. The latest recorded dependency-audit attempt could not refresh results because the npm registry connection reset, so that run did not establish current vulnerability status.
 
-This is a minimal single-workspace application for small teams. Workspace reads intentionally load that organization's records; very large workspaces would need server-side pagination. Authentication rate limiting is process-local. One refresh session is stored per account. These are explicit scale boundaries, not incomplete workflow steps.
+## Security and data integrity
 
-Maintainer: Nidha Ahmed Mohammad. License identifier: ISC.
+- Passwords should be stored as hashes, never plaintext.
+- Access tokens are short-lived and held in browser memory.
+- Refresh tokens use an HttpOnly cookie and are stored hashed in the database.
+- Logout revokes the current session and clears refresh cookies.
+- Password changes revoke active sessions.
+- The backend checks organization membership and role on protected operations.
+- Task transitions use conditional version/status updates to prevent stale or duplicate changes.
+- Project and milestone deletion is restricted to eligible empty records; destructive cascades are intentionally avoided.
+- Secrets belong in environment configuration, not source control.
+
+## Current scope
+
+StackFlow is designed as a focused workspace for small teams. Workspace reads load the organization's records, so very large workspaces would benefit from server-side pagination. Authentication rate limiting is process-local, and one refresh session is stored per account. These are current scale boundaries to consider before expanding to a larger deployment.
+
+## Repository structure
+
+```text
+StackFlow/
+├── package.json
+├── package-lock.json
+├── render.yaml
+├── scripts/
+├── stackflow-backend/
+│   ├── .env.example
+│   └── src/
+│       ├── app.js
+│       ├── server.js
+│       ├── controllers/
+│       ├── routes/
+│       ├── models/
+│       ├── middlewares/
+│       └── lib/
+├── stackflow-frontend/
+│   ├── .env.example
+│   ├── vercel.json
+│   └── src/
+│       ├── components/
+│       ├── context/
+│       ├── layouts/
+│       ├── pages/
+│       ├── services/
+│       └── utils/
+└── docs/
+    └── DEPLOYMENT.md
+```
+
+## Contributing
+
+Issues, suggestions, and improvements are welcome. For changes, create a branch, keep secrets and local data out of commits, run the relevant checks, and open a pull request with a concise explanation of the change.
+
+## License
+
+ISC
