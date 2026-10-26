@@ -1,0 +1,40 @@
+{
+  "name": "stackflow",
+  "version": "1.0.0",
+  "description": "Minimal project management and human task verification for teams",
+  "main": "stackflow-backend/src/server.js",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:backend": "node --watch stackflow-backend/src/server.js",
+    "dev:frontend": "npm --prefix stackflow-frontend run dev",
+    "start": "node stackflow-backend/src/server.js",
+    "build": "npm --prefix stackflow-frontend run build",
+    "lint": "npm --prefix stackflow-frontend run lint",
+    "typecheck": "npm --prefix stackflow-frontend run typecheck",
+    "check:backend": "node scripts/check-backend.mjs",
+    "test": "node --test stackflow-backend/test/workflow.test.js stackflow-backend/test/config.test.js",
+    "test:integration": "node --test stackflow-backend/test/integration.test.js",
+    "test:transactions": "node scripts/test-transactions.mjs",
+    "test:browser": "node scripts/test-browser.mjs",
+    "setup": "node scripts/setup.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.19.2"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1"
+  },
+  "engines": {
+    "node": "^22.12.0 || ^24.0.0"
+  }
+}

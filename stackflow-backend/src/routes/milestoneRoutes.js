@@ -1,0 +1,12 @@
+import express from "express";
+import { authenticateToken, requireOrg } from "../middlewares/authenticateToken.js";
+import { authorizeRoles } from "../middlewares/authorizeRoles.js";
+import { createMilestone, getMilestonesForProject, getMilestoneById, updateMilestone, deleteMilestone } from "../controllers/milestoneController.js";
+const router = express.Router();
+router.use(authenticateToken, requireOrg);
+router.post("/create/:projectId", authorizeRoles("admin", "techlead"), createMilestone);
+router.get("/details/:milestoneId", getMilestoneById);
+router.get("/:projectId", getMilestonesForProject);
+router.patch("/:milestoneId", authorizeRoles("admin"), updateMilestone);
+router.delete("/:milestoneId", authorizeRoles("admin"), deleteMilestone);
+export default router;

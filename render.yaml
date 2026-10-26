@@ -1,0 +1,25 @@
+# Repository root is the directory containing this file and package.json.
+# Review the service name and region before applying to an existing Render account.
+services:
+  - type: web
+    name: stackflow-api
+    runtime: node
+    plan: free
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 24.22.1
+      - key: TRUST_PROXY
+        value: "1"
+      - key: DB_URI
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: ACCESS_SECRET
+        generateValue: true
+      - key: REFRESH_SECRET
+        generateValue: true
